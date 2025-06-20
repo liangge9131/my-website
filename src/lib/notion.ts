@@ -1,5 +1,19 @@
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
+import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
+
+// Helper function to safely extract property values
+const getProperty = <T>(property: any): T | undefined => {
+  if (property) {
+    if (property.title) return property.title[0]?.plain_text as T;
+    if (property.rich_text) return property.rich_text[0]?.plain_text as T;
+    if (property.multi_select) return property.multi_select.map((item: { name: string }) => item.name) as T;
+    if (property.url) return property.url as T;
+    if (property.select) return property.select?.name as T;
+    if (property.date) return property.date?.start as T;
+  }
+  return undefined;
+};
 
 // Initializing a client
 const notion = new Client({
@@ -16,7 +30,7 @@ export const getProjects = async () => {
   }
 
   try {
-    const response = await notion.databases.query({
+    const response: QueryDatabaseResponse = await notion.databases.query({
       database_id: databaseId,
       filter: {
         property: 'Published',
@@ -32,15 +46,16 @@ export const getProjects = async () => {
       ],
     });
 
-    return response.results.map((page: any) => {
+    return response.results.map((page) => {
+      const { properties } = page as PageObjectResponse;
       return {
         id: page.id,
-        name: page.properties.Name.title[0]?.plain_text,
-        description: page.properties.Description.rich_text[0]?.plain_text,
-        techStack: page.properties.TechStack.multi_select.map((item: any) => item.name),
-        role: page.properties.Role.rich_text[0]?.plain_text,
-        url: page.properties.URL.url,
-        category: page.properties.Category.select?.name,
+        name: getProperty<string>(properties.Name),
+        description: getProperty<string>(properties.Description),
+        techStack: getProperty<string[]>(properties.TechStack) || [],
+        role: getProperty<string>(properties.Role),
+        url: getProperty<string>(properties.URL),
+        category: getProperty<string>(properties.Category),
       };
     });
   } catch (error: any) {
@@ -57,7 +72,7 @@ export const getBlogPosts = async () => {
   }
 
   try {
-    const response = await notion.databases.query({
+    const response: QueryDatabaseResponse = await notion.databases.query({
       database_id: databaseId,
       filter: {
         property: 'Published',
@@ -73,14 +88,15 @@ export const getBlogPosts = async () => {
       ],
     });
 
-    return response.results.map((page: any) => {
+    return response.results.map((page) => {
+      const { properties } = page as PageObjectResponse;
       return {
         id: page.id,
-        title: page.properties.Title.title[0]?.plain_text,
-        summary: page.properties.Summary.rich_text[0]?.plain_text,
-        category: page.properties.Category.select?.name,
-        tags: page.properties.Tags.multi_select.map((item: any) => item.name),
-        publishedDate: page.properties.PublishedDate.date?.start,
+        title: getProperty<string>(properties.Title),
+        summary: getProperty<string>(properties.Summary),
+        category: getProperty<string>(properties.Category),
+        tags: getProperty<string[]>(properties.Tags) || [],
+        publishedDate: getProperty<string>(properties.PublishedDate),
       };
     });
   } catch (error: any) {
@@ -95,9 +111,11 @@ export const getBlogPost = async (pageId: string) => {
     const mdblocks = await n2m.pageToMarkdown(pageId);
     const mdString = n2m.toMarkdownString(mdblocks);
 
+    const { properties } = page as PageObjectResponse;
+    const title = getProperty<string>(properties.Title);
+
     return {
-      // @ts-ignore
-      title: page.properties.Title.title[0]?.plain_text,
+      title: title,
       content: mdString.parent,
     };
   } catch (error: any) {
@@ -114,7 +132,7 @@ export const getAboutInfo = async () => {
   }
 
   try {
-    const response = await notion.databases.query({
+    const response: QueryDatabaseResponse = await notion.databases.query({
       database_id: databaseId,
       sorts: [
         {
@@ -124,11 +142,12 @@ export const getAboutInfo = async () => {
       ],
     });
 
-    return response.results.map((page: any) => {
+    return response.results.map((page) => {
+      const { properties } = page as PageObjectResponse;
       return {
         id: page.id,
-        section: page.properties.Section.title[0]?.plain_text,
-        content: page.properties.Content.rich_text[0]?.plain_text,
+        section: getProperty<string>(properties.Section),
+        content: getProperty<string>(properties.Content),
       };
     });
   } catch (error: any) {

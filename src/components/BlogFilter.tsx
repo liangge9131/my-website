@@ -14,7 +14,7 @@ interface Post {
 }
 
 export default function BlogFilter({ initialPosts }: { initialPosts: Post[] }) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts] = useState<Post[]>(initialPosts);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -24,9 +24,8 @@ export default function BlogFilter({ initialPosts }: { initialPosts: Post[] }) {
   }, []);
   
   useEffect(() => {
-    // @ts-ignore
     const uniqueCategories = ['All', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
-    setCategories(uniqueCategories);
+    setCategories(uniqueCategories as string[]);
   }, [posts]);
 
   const filteredBySearchAndCategory = useMemo(() => {

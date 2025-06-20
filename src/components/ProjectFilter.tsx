@@ -14,7 +14,7 @@ interface Project {
 }
 
 export default function ProjectFilter({ initialProjects }: { initialProjects: Project[] }) {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects] = useState<Project[]>(initialProjects);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(initialProjects);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
