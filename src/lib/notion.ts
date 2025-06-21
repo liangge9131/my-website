@@ -2,15 +2,17 @@ import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 import { PageObjectResponse, QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 
+type NotionProperty = PageObjectResponse['properties'][string];
+
 // Helper function to safely extract property values
-const getProperty = <T>(property: any): T | undefined => {
+const getProperty = <T>(property: NotionProperty): T | undefined => {
   if (property) {
-    if (property.title) return property.title[0]?.plain_text as T;
-    if (property.rich_text) return property.rich_text[0]?.plain_text as T;
-    if (property.multi_select) return property.multi_select.map((item: { name: string }) => item.name) as T;
-    if (property.url) return property.url as T;
-    if (property.select) return property.select?.name as T;
-    if (property.date) return property.date?.start as T;
+    if ('title' in property && Array.isArray(property.title)) return property.title[0]?.plain_text as T;
+    if ('rich_text' in property && Array.isArray(property.rich_text)) return property.rich_text[0]?.plain_text as T;
+    if ('multi_select' in property && Array.isArray(property.multi_select)) return property.multi_select.map((item: { name: string }) => item.name) as T;
+    if ('url' in property && typeof property.url === 'string') return property.url as T;
+    if ('select' in property && property.select) return property.select?.name as T;
+    if ('date' in property && property.date) return property.date?.start as T;
   }
   return undefined;
 };
@@ -58,9 +60,12 @@ export const getProjects = async () => {
         category: getProperty<string>(properties.Category),
       };
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching projects from Notion:', error);
-    throw new Error(`Failed to fetch projects from Notion. Original error: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch projects from Notion. Original error: ${error.message}`);
+    }
+    throw new Error('Failed to fetch projects from Notion due to an unknown error.');
   }
 };
 
@@ -99,9 +104,12 @@ export const getBlogPosts = async () => {
         publishedDate: getProperty<string>(properties.PublishedDate),
       };
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching blog posts from Notion:', error);
-    throw new Error(`Failed to fetch blog posts from Notion. Original error: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch blog posts from Notion. Original error: ${error.message}`);
+    }
+    throw new Error('Failed to fetch blog posts from Notion due to an unknown error.');
   }
 };
 
@@ -118,9 +126,12 @@ export const getBlogPost = async (pageId: string) => {
       title: title,
       content: mdString.parent,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`Error fetching blog post with ID ${pageId} from Notion:`, error);
-    throw new Error(`Failed to fetch blog post from Notion. Original error: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch blog post from Notion. Original error: ${error.message}`);
+    }
+    throw new Error('Failed to fetch blog post from Notion due to an unknown error.');
   }
 };
 
@@ -150,9 +161,12 @@ export const getAboutInfo = async () => {
         content: getProperty<string>(properties.Content),
       };
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching about info from Notion:', error);
-    throw new Error(`Failed to fetch about info from Notion. Original error: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch about info from Notion. Original error: ${error.message}`);
+    }
+    throw new Error('Failed to fetch about info from Notion due to an unknown error.');
   }
 };
 

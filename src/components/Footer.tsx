@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-gray-400 mt-16 border-t border-gray-800">
       <div className="container mx-auto py-8 px-4 flex flex-col md:flex-row justify-between items-center">
         <div>
-          <p>&copy; {new Date().getFullYear()} Zeng Liangliang. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} John Doe. All Rights Reserved.</p>
         </div>
         <div className="flex items-center space-x-6 mt-4 md:mt-0">
           <a href="mailto:your.email@example.com" className="hover:text-white transition-colors">
