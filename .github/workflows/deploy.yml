@@ -16,10 +16,8 @@ jobs:
         with:
           node-version: "20"
       - name: Install Dependencies
-        working-directory: ./my-app
         run: npm install
       - name: Build
-        working-directory: ./my-app
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_PROJECTS_DB_ID: ${{ secrets.NOTION_PROJECTS_DB_ID }}
@@ -29,7 +27,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./my-app/out
+          path: ./out
 
   deploy:
     environment:
