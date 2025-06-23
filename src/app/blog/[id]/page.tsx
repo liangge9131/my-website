@@ -5,13 +5,7 @@ import GiscusComments from '@/components/GiscusComments';
 import type { Metadata } from 'next';
 // import './markdown.css'; // No longer needed
 
-interface PostPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const { title, content } = await getBlogPost(params.id);
   const description = content.substring(0, 150) + '...'; // Simple summary
 
@@ -21,7 +15,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   };
 }
 
-export default async function PostPage({ params }: PostPageProps) {
+export default async function PostPage({ params }: { params: { id: string } }) {
   const { title, content } = await getBlogPost(params.id);
 
   return (
