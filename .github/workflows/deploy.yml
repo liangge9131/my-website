@@ -20,6 +20,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Build
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_PROJECTS_DB_ID: ${{ secrets.NOTION_PROJECTS_DB_ID }}
+          NOTION_BLOG_DB_ID: ${{ secrets.NOTION_BLOG_DB_ID }}
+          NOTION_ABOUT_DB_ID: ${{ secrets.NOTION_ABOUT_DB_ID }}
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
